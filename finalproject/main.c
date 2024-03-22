@@ -885,6 +885,7 @@ int connectToAccessPoint() {
 }
 volatile int remoteOn = 0;
 
+// This function checks for the buttons pressed and performs actions according to the button number
 void display(unsigned long value, int iTLSSockID) {
     switch(value) {
     case(BUTTON2):
@@ -894,11 +895,9 @@ void display(unsigned long value, int iTLSSockID) {
         pressed2++;
         if (pressed2 == 1) {
             prevChar = 'a';
-           // remoteOn = 1;
             GPIO_IF_LedOn(MCU_RED_LED_GPIO);
         } else if (pressed2 == 2) {
             prevChar = 'b';
-           // remoteOn = 0;
             GPIO_IF_LedOff(MCU_RED_LED_GPIO);
             ball(4, 0x07FF, iTLSSockID);
         } else if (pressed2 == 3) {
@@ -911,69 +910,14 @@ void display(unsigned long value, int iTLSSockID) {
         }
       Report("Pressed 2\n\r");
       break;
-//        case BUTTON3:
-//            if (prevChar != 'd' && prevChar != 'e' && prevChar != 'f') {
-//                pressed3 = 0;
-//            }
-//            pressed3++;
-//            if (pressed3 == 1) {
-//                prevChar = 'd';
-//                remoteOn = 1;
-////                GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-////                GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
-////                GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
-//            } else if (pressed3 == 2) {
-//                prevChar = 'e';
-//
-//                MAP_UtilsDelay(8000000);
-//                GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-//                MAP_UtilsDelay(8000000);
-//                GPIO_IF_LedOff(MCU_RED_LED_GPIO);
-//                MAP_UtilsDelay(8000000);
-//                GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
-//                MAP_UtilsDelay(8000000);
-//                GPIO_IF_LedOff(MCU_ORANGE_LED_GPIO);
-//                MAP_UtilsDelay(8000000);
-//                GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
-//                MAP_UtilsDelay(8000000);
-//                GPIO_IF_LedOff(MCU_GREEN_LED_GPIO);
-//                GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-//                GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
-//                GPIO_IF_LedOn(MCU_GREEN_LED_GPIO);
-//            } else if (pressed3 == 3) {
-//                prevChar = 'f';
-//                GPIO_IF_LedOff(MCU_ALL_LED_IND);
-//                } else {
-//                    prevChar = 'd';
-//                    pressed3 = 1;
-//                }
-//                break;
 
-            default:
-               break;
+      default:
+         break;
     }
 }
 
-//void display(unsigned long value, int iTLSSockID) {
-//    switch (value) {
-//        case BUTTON2:
-//            GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-//            remoteOn = 1;
-//            break;
-//        case BUTTON3:
-//            GPIO_IF_LedOff(MCU_RED_LED_GPIO);
-//            remoteOn = 0;
-//            break;
-//        default:
-//            break;
-//    }
-//    ball(4, 0x07FF, iTLSSockID);
-//}
-
-
-
-//void ball(unsigned int radius, unsigned int color, unsigned long value, int iTLSSockID)
-//{
+// This is the accelerometer sensor function
+// it checks for the position of the sensor and turns ON/OFF the LED
 void ball(unsigned int radius, unsigned int color, int iTLSSockID)
 {
 
@@ -987,8 +931,6 @@ void ball(unsigned int radius, unsigned int color, int iTLSSockID)
 
     fillCircle(x, y, radius, color);
 
-//    int loop = 0;
-//    while (!loop) { // Continuous loop
     RET_IF_ERR(I2C_IF_Write(0x18, &axis1, 1, 0));
     RET_IF_ERR(I2C_IF_Read(0x18, &dx, 1));
     RET_IF_ERR(I2C_IF_Write(0x18, &axis2, 1, 0));
@@ -1007,7 +949,6 @@ void ball(unsigned int radius, unsigned int color, int iTLSSockID)
 
 
     // Determine current LED state
-
     if (y>0) { // Check if there's a change in LED state
         if (prevLEDstate != 0) {
             http_post(iTLSSockID);
@@ -1015,55 +956,16 @@ void ball(unsigned int radius, unsigned int color, int iTLSSockID)
         ledIsOn = 0;
         GPIO_IF_LedOff(MCU_ALL_LED_IND);
         prevLEDstate = 0;
-//                http_post(iTLSSockID);
-//            ledIsOn = 0; // LED is now off
-//            loop = 1;
     }
 
     if (y<0){
         if (prevLEDstate != 1) {
-            http_post(iTLSSockID);
+            http_post(iTLSSockID);  // http post whenever a light status changes
         }
         ledIsOn = 1;
         GPIO_IF_LedOn(MCU_ALL_LED_IND);
         prevLEDstate = 1;
-//            ledIsOn = 1; // LED is now on
-//            loop = 1;
     }
-//    http_post(iTLSSockID);
-//    if (currentLedState != prevLedState ) { // Check if there's a change in LED state
-//        if (currentLedState) {
-//            GPIO_IF_LedOff(MCU_ALL_LED_IND);
-////                http_post(iTLSSockID);
-//            ledIsOn = 0; // LED is now off
-//
-//        } else if (!currentLedState){
-//            GPIO_IF_LedOn(MCU_ALL_LED_IND);
-//            ledIsOn = 1; // LED is now on
-//
-//        }
-//        http_post(iTLSSockID);
-//        prevLedState = currentLedState;
-//    }
-//        prevLedState = currentLedState;
-
-//        MAP_UtilsDelay(80000); // Adjust the delay as needed
-
-
-//        if (ledIsOn != prevLedState) {
-//            http_post(iTLSSockID);
-//            prevLedState = ledIsOn;
-//        }
-//        http_get(lRetVal);
-//        UART_PRINT("GET done\n\r");
-//
-//        sl_Stop(SL_STOP_TIMEOUT);
-//        LOOP_FOREVER();
-//    }
-}
-
-void message() {
-
 }
 
 
@@ -1148,7 +1050,7 @@ void main() {
     if(lRetVal < 0) {
         ERR_PRINT(lRetVal);
     }
-//    int dummy = 1;
+  
     Adafruit_Init();
     MAP_UtilsDelay(10000);
     fillScreen(RED);
@@ -1157,22 +1059,13 @@ void main() {
        GPIO_IF_LedConfigure(LED1|LED2|LED3);
        GPIO_IF_LedOff(MCU_ALL_LED_IND);
 
-
-   //    ball(4, 0x07FF, data, lRetVal);
-       // Main loop
-   //    while (1) {
-           // Check accelerometer and remote control
        while(SW_intflag == 0);
-
-
-
        while(data != BUTTON2) {
            SW_intflag = 0;
            while(SW_intflag == 0);
        }
 
        SW_intflag = 0;
-
 
        while(1) {
 
@@ -1182,13 +1075,11 @@ void main() {
                    GPIO_IF_LedOff(MCU_ALL_LED_IND);
                   // delay(8000);
                    lRetVal = http_get(lRetVal);
-
-                       if(lRetVal < 0) {
-                           UART_PRINT("HTTP GET failed.\n\r");
-                       } else {
-                           UART_PRINT("HTTP GET successful. Check for new messages.\n\r");
+                   if(lRetVal < 0) {
+                       UART_PRINT("HTTP GET failed.\n\r");
+                   } else {
+                       UART_PRINT("HTTP GET successful. Check for new messages.\n\r");
                    }
-
                }
            }
 
@@ -1197,21 +1088,7 @@ void main() {
                break;
            }
        }
-
-
        SW_intflag = 0;
-       //ball(4, 0x07FF, lRetVal); // Handle accelerometer input
-       //        if (SW_intflag == 1) {    // Check if remote control command received
-       //            display(data, lRetVal);
-       //            SW_intflag = 0;
-       //            http_post(lRetVal);  // Send HTTP POST request based on remote control command
-       //            http_get(lRetVal);
-       //        }
-
-       //        MAP_UtilsDelay(80000); // Adjust delay as needed
-       //    }
-
-       //    http_get(lRetVal);
     }
 }
 
@@ -1260,8 +1137,6 @@ static int http_post(int iTLSSockID){
     strcpy(pcBufHeaders, DATA2);
     pcBufHeaders += strlen(DATA2);
 
-    // Copy DATA1 to acSendBuff
-//    strcpy(pcBufHeaders, custom_message);
     int testDataLength = strlen(pcBufHeaders);
 
     // Print acSendBuff for debugging
@@ -1272,7 +1147,6 @@ static int http_post(int iTLSSockID){
     if(lRetVal < 0) {
         UART_PRINT("POST failed. Error Number: %i\n\r",lRetVal);
         sl_Close(iTLSSockID);
-//        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
         return lRetVal;
     } else {
         UART_PRINT("POST sent\n\r");
@@ -1282,7 +1156,6 @@ static int http_post(int iTLSSockID){
     if(lRetVal < 0) {
         UART_PRINT("Received failed. Error Number: %i\n\r",lRetVal);
         //sl_Close(iSSLSockID);
-//        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
            return lRetVal;
     }
     else {
@@ -1293,51 +1166,6 @@ static int http_post(int iTLSSockID){
 
     return 0;
 }
-
-
-//
-//static int http_get(int iTLSSockID) {
-//    char acSendBuff[512];
-//    char acRecvbuff[1460];
-//    int lRetVal = 0;
-//
-//    // Construct GET request message
-//    char *pcBufHeaders = acSendBuff;
-//    strcpy(pcBufHeaders, GETHEADER);
-//    pcBufHeaders += strlen(GETHEADER);
-//    strcpy(pcBufHeaders, HOSTHEADER);
-//    pcBufHeaders += strlen(HOSTHEADER);
-//    strcpy(pcBufHeaders, CHEADER);
-//    pcBufHeaders += strlen(CHEADER);
-//    strcpy(pcBufHeaders, "\r\n\r\n");
-//
-//    // Send GET request to server
-//    lRetVal = sl_Send(iTLSSockID, acSendBuff, strlen(acSendBuff), 0);
-//    if(lRetVal < 0) {
-//        UART_PRINT("GET failed. Error Number: %i\n\r", lRetVal);
-//        sl_Close(iTLSSockID);
-////        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-//        return lRetVal;
-//    } else {
-//        UART_PRINT("GET sent\n\r");
-//    }
-//
-//    // Receive response from the server
-//    lRetVal = sl_Recv(iTLSSockID, &acRecvbuff[0], sizeof(acRecvbuff), 0);
-//    if(lRetVal < 0) {
-//        UART_PRINT("Received failed. Error Number: %i\n\r", lRetVal);
-////        GPIO_IF_LedOn(MCU_RED_LED_GPIO);
-//        return lRetVal;
-//    } else {
-//        acRecvbuff[lRetVal] = '\0';
-////        acRecvBuff;
-//        UART_PRINT(acRecvbuff);
-//        UART_PRINT("\n\r\n\r");
-//    }
-//
-//
-//    return 0;
-//}
 
 static int http_get(int iTLSSockID) {
     char acSendBuff[512];
